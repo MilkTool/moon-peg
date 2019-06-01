@@ -1,9 +1,5 @@
 package moon.peg.grammar;
 
-import moon.core.Console;
-import moon.core.Pair;
-import moon.core.Symbol;
-import moon.core.Text;
 import moon.peg.grammar.Rule;
 import moon.peg.parser.Lexer;
 import moon.peg.parser.Operators;
@@ -167,15 +163,6 @@ class PegParser
         Optimizations
     ==================================================*/
     
-    public function printRules(rules:Map<String, Rule>):Void
-    {
-        for (id in rules.keys())
-        {
-            var rule:Rule = rules[id];
-            Console.println(id + " = " + rule);
-        }
-    }
-    
     public function validateRules(rules:Map<String, Rule>):Void
     {
         var rhs = new Map<String, Int>();
@@ -214,12 +201,6 @@ class PegParser
     }
     
     
-    public inline function debug(msg:Dynamic):Void
-    {
-        if (debugOutput)
-            Console.println(Text.of(" ").repeat(depth * 3) + Std.string(msg));
-    }
-    
     /*==================================================
         Methods
     ==================================================*/
@@ -233,14 +214,14 @@ class PegParser
         {
             var def = parseDefinition();
             
-            if (rules.exists(def.head))
-                throw "PegParser: Duplicate definition of " + def.head;
+            if (rules.exists(def.lhs))
+                throw "PegParser: Duplicate definition of " + def.lhs;
                 
             // the first definition is the main one
             if (n == 0)
-                rules.set("#start", Anon(Id(def.head)));
+                rules.set("#start", Anon(Id(def.lhs)));
                 
-            rules.set(def.head, def.tail);
+            rules.set(def.lhs, def.rhs);
             
             ++n;
         }
@@ -254,7 +235,7 @@ class PegParser
     }
     
     // lhs = rhs;
-    public function parseDefinition():Pair<String, Rule>
+    public function parseDefinition()
     {
         debug("definition " + tokens.current());
         ++depth;
@@ -294,7 +275,7 @@ class PegParser
         
         --depth;
         debug("end definition" + rhs);
-        return Pair.of(lhs, rhs);
+        return { lhs: lhs, rhs: rhs };
     }
     
     // Id
@@ -532,4 +513,7 @@ class PegParser
         debug("end unary " + tokens.current());
         return curr;
     }
+
+public function debug(msg: Dynamic) {}
+public function printRules(rules:Map<String, Rule>) {}
 }

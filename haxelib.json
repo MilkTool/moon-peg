@@ -8,8 +8,5 @@
     "version": "0.1.0",
     "url": "https://github.com/profound7/moon-peg",
     "classPath": "src",
-    "dependencies": 
-    {
-        "moon-core": ""
-    }
+    "dependencies": { }
 }

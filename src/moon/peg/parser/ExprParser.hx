@@ -1,6 +1,5 @@
 package moon.peg.parser;
 
-import moon.core.Pair;
 import moon.peg.grammar.ParseTree;
 import moon.peg.parser.Operators;
 

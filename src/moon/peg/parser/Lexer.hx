@@ -1,8 +1,5 @@
 package moon.peg.parser;
 
-import moon.core.Pair;
-import moon.tools.ERegTools;
-
 using StringTools;
 
 /**
@@ -34,7 +31,7 @@ class Lexer<T:EnumValue>
         Methods
     ==================================================*/
     
-    public function define(name:String, rx:EReg, ?process:String->String->Pair<String, Int>, ?token:String->T):Void
+    public function define(name:String, rx:EReg, ?process:String->String->{ val: String, pos: Int }, ?token:String->T):Void
     {
         defs.push(new LexerDef(name, rx, process, token));
     }
@@ -62,9 +59,9 @@ class Lexer<T:EnumValue>
                 
                 if (def.process != null)
                 {
-                    var info:Pair<String, Int> = def.process(curr, next);
-                    curr = info.head;
-                    next = next.substr(info.tail);
+                    var info = def.process(curr, next);
+                    curr = info.val;
+                    next = next.substr(info.pos);
                 }
                 
                 if (def.token != null)
@@ -111,7 +108,7 @@ class Lexer<T:EnumValue>
      * This function skips block comments. It detects
      * nested block comments.
      */
-    public static function skipComments(text:String, open:String, close:String=null, nested:Bool=false):Pair<String, Int>
+    public static function skipComments(text:String, open:String, close:String=null, nested:Bool=false)
     {
         var eopen = ERegTools.escape(open);
         var eclose = close != null ? ERegTools.escape(close) : "\\n|$";
@@ -146,7 +143,7 @@ class Lexer<T:EnumValue>
         if (depth != 0)
             throw "Lexer: Unexpected EOF";
             
-        return Pair.of(null, pos);
+        return { val: null, pos: pos };
     }
     
     /**
@@ -171,7 +168,7 @@ class Lexer<T:EnumValue>
      * The string will be parsed and escape sequences replaced
      * with the actual characters.
      */
-    public static function string(code:String, end:String, ?escapes:Map<Int, String>, regexMode:Bool=false):Pair<String, Int>
+    public static function string(code:String, end:String, ?escapes:Map<Int, String>, regexMode:Bool=false)
     {
         if (escapes == null)
             escapes = Lexer.escapes;
@@ -219,7 +216,7 @@ class Lexer<T:EnumValue>
             }
             else if (code.substr(i, end.length) == end)
             {
-                return Pair.of(out.toString(), i + end.length);
+                return { val: out.toString(), pos: i + end.length };
             }
             else
             {
@@ -232,21 +229,21 @@ class Lexer<T:EnumValue>
         throw "Invalid string";
     }
     
-    public static function regex(code:String, end:String):Pair<String, Int>
+    public static function regex(code:String, end:String)
     {
-        var info:Pair<String, Int> = string(code, end, null, true);
-        var curr:String = info.head;
-        var next:String = code.substr(info.tail);
+        var info = string(code, end, null, true);
+        var curr:String = info.val;
+        var next:String = code.substr(info.pos);
         var rx:EReg = ~/^([a-z]+)/i;
         
         if (rx.match(next))
         {
-            info.head = curr + "\t" + rx.matched(1);
-            info.tail += rx.matchedPos().len;
+            info.val = curr + "\t" + rx.matched(1);
+            info.pos += rx.matchedPos().len;
         }
         else
         {
-            info.head = curr + "\t";
+            info.val = curr + "\t";
         }
         
         return info;
@@ -257,10 +254,10 @@ class LexerDef<T:EnumValue>
 {
     public var name:String;
     public var rx:EReg;
-    public var process:String->String->Pair<String, Int>;
+    public var process:String->String->{ val: String, pos: Int };
     public var token:String->T;
     
-    public function new(name:String, rx:EReg, process:String->String->Pair<String, Int>, token:String->T)
+    public function new(name:String, rx:EReg, process:String->String->{ val: String, pos: Int }, token:String->T)
     {
         this.name = name;
         this.rx = rx;
@@ -275,4 +272,14 @@ enum LexerAction
     Ignore;
     Terminate;
     Parse(lex:Lexer<Dynamic>);
+}
+
+class ERegTools
+{
+    public static var rxEscape = ~/(\+|\*|\?|\^|\$|\.|\||\(|\)|\[|\]|\\)/g;
+    
+    public static function escape(text:String):String
+    {
+        return rxEscape.replace(text, "\\$1");
+    }
 }

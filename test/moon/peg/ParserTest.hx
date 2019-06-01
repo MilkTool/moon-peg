@@ -1,6 +1,5 @@
 package moon.peg;
 
-import moon.core.Symbol;
 import moon.peg.grammar.Parser;
 import moon.peg.grammar.ParseTree;
 import moon.test.TestCase;

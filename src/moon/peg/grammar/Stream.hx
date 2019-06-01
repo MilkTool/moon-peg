@@ -1,13 +1,9 @@
 package moon.peg.grammar;
 
-import moon.core.Console;
-import moon.core.Symbol;
-import moon.core.Text;
 import moon.peg.grammar.Rule;
 import moon.peg.grammar.ParseTree;
 
 using StringTools;
-using moon.tools.ArrayTools;
 
 /**
  * PEG parser with memoization (Packrat parser)
@@ -111,8 +107,8 @@ class Stream
         var line:Int = 0;
         var column:Int = p + 1;
         
-        var s:Text = text.substr(0, p);
-        var nlCount = s.count("\n");
+        var s:String = text.substr(0, p);
+        var nlCount = s.split("\n").length - 1;
         
         line = nlCount + 1;
         
@@ -125,18 +121,10 @@ class Stream
         return { offset: p, line: line, column: column };
     }
     
-    #if debug
-        public function debug(msg:Dynamic):Void
-        {
-            if (debugOutput)
-                Console.println(Text.of(" ").repeat(depth * 3) + Std.string(msg));
-        }
-    #else
         public macro function debug(a:haxe.macro.Expr, b:Array<haxe.macro.Expr>)
         {
             return macro null;
         }
-    #end
     
     /*==================================================
         Left Recursion Support
@@ -191,7 +179,7 @@ class Stream
             
         // do not eval any rule that is not involved in
         // this left recursion
-        if (m == null && ![h.rule].concat(h.involvedSet).contains(R))
+        if (m == null && [h.rule].concat(h.involvedSet).indexOf(R) == -1)
         {
             //return new CacheData(P, Error("recursion"));
             return new CacheData(P, Error);
@@ -199,7 +187,7 @@ class Stream
             
         // allow involved rules to be evaluated, but only once,
         // during a seed-growing iteration
-        if (h.evalSet.contains(R))
+        if (h.evalSet.indexOf(R) != -1)
         {
             h.evalSet.remove(R);
             var ans = eval(R);

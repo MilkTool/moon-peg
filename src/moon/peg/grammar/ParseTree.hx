@@ -1,6 +1,5 @@
 package moon.peg.grammar;
 
-import moon.core.Symbol;
 import moon.peg.grammar.Stream.RecursionInfo;
 
 /**

@@ -16,7 +16,6 @@
     {
         "@hxproj-main": "peg.hxproj",
         "-cp": ["src", "test"],
-        "-lib": ["moon-core"],
         "-v": false,
         
         "cpp":

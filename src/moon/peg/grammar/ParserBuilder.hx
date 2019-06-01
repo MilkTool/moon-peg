@@ -1,7 +1,5 @@
 package moon.peg.grammar;
 
-import moon.core.Compare;
-import moon.core.Symbol;
 import moon.peg.grammar.Rule;
 
 #if macro

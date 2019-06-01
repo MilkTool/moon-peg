@@ -1,7 +1,5 @@
 package moon.peg.grammar;
 
-import moon.core.Symbol;
-
 /**
  * ...
  * @author Munir Hussin

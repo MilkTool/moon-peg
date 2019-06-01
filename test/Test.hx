@@ -1,8 +1,6 @@
 package;
 
-import moon.peg.LispTest;
 import moon.peg.ParserTest;
-import moon.peg.StreamTest;
 import moon.test.TestCase;
 import moon.test.TestRunner;
 
@@ -18,8 +16,6 @@ class Test
         var modules:Array<Class<TestCase>> =
         [
             ParserTest,
-            LispTest,
-            StreamTest,
         ];
         
         var r = new TestRunner();
